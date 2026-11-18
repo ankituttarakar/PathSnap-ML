@@ -32,6 +32,16 @@ app = FastAPI(
     description="Map-Matching & Route Reconstruction Backend (Laptop 1)",
 )
 
+@app.get("/")
+def root() -> dict:
+    """Root endpoint to confirm API is reachable."""
+    return {
+        "status": "healthy",
+        "service": "PathSnap API",
+        "version": __version__,
+        "endpoints": ["/health", "/trips", "/predict", "/docs"],
+    }
+
 # Enable CORS for Laptop 2 (UI client) over LAN / Wi-Fi
 app.add_middleware(
     CORSMiddleware,
