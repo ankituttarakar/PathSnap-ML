@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PathSnap — Distributed Map-Matching & Route Reconstruction</title>
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <div class="logo-badge">PS</div>
+      <div>
+        <h1 class="nav-title">PathSnap</h1>
+        <p class="nav-subtitle">PES University • UE24CS352A: Machine Learning • Laptop 2 Evaluator Client</p>
+      </div>
+    </div>
+    
+    <div class="api-config-bar">
+      <span class="api-label">Backend (Laptop 1):</span>
+      <input type="text" id="apiUrlInput" value="http://localhost:8000" placeholder="http://192.168.1.X:8000" />
+      <button id="testApiBtn" class="btn btn-secondary">Connect</button>
+      <span id="apiStatusBadge" class="badge badge-disconnected">Disconnected</span>
+    </div>
+  </header>
+
+  <div class="main-layout">
+    
+    <!-- Sidebar Control Panel -->
+    <aside class="sidebar">
+      
+      <!-- Trip Selector Section -->
+      <div class="panel-card">
+        <h2 class="card-title">1. Select Evaluation Trip</h2>
+        <p class="card-desc">Choose from the 10 reserved evaluation trips hosted on Laptop 1.</p>
+        
+        <div class="form-group">
+          <label for="tripSelect">Evaluation Trip:</label>
+          <select id="tripSelect" class="form-select">
+            <option value="" disabled selected>Loading trips from API...</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="customTripInput">Or Enter Trip ID:</label>
+          <input type="text" id="customTripInput" placeholder="e.g. 00000000" class="form-input" />
+        </div>
+
+        <button id="runBtn" class="btn btn-primary btn-block">
+          <span id="btnText">Run Route Reconstruction</span>
+          <span id="btnSpinner" class="spinner hidden"></span>
+        </button>
+      </div>
+
+      <!-- Metrics Dashboard Section -->
+      <div class="panel-card">
+        <h2 class="card-title">2. Evaluation Results</h2>
+        <div id="metricsPlaceholder" class="placeholder-text">
+          Select a trip and click "Run Route Reconstruction" to compute metrics.
+        </div>
+
+        <div id="metricsContent" class="metrics-grid hidden">
+          <div class="metric-box highlight">
+            <span class="metric-label">HMM Route Accuracy</span>
+            <span id="metricAccuracy" class="metric-value">--%</span>
+            <span id="metricAccBaseline" class="metric-sub">vs --% baseline</span>
+          </div>
+
+          <div class="metric-box highlight">
+            <span class="metric-label">Topological Continuity</span>
+            <span id="metricContinuity" class="metric-value">--%</span>
+            <span id="metricContBaseline" class="metric-sub">vs --% baseline</span>
+          </div>
+
+          <div class="metric-box">
+            <span class="metric-label">Inference Latency</span>
+            <span id="metricLatency" class="metric-value">-- ms</span>
+            <span class="metric-sub">End-to-End runtime</span>
+          </div>
+
+          <div class="metric-box">
+            <span class="metric-label">GPS Observations</span>
+            <span id="metricObsCount" class="metric-value">--</span>
+            <span class="metric-sub">1 Hz trajectory points</span>
+          </div>
+
+          <div class="metric-box">
+            <span class="metric-label">Traversed Arcs</span>
+            <span id="metricArcsCount" class="metric-value">--</span>
+            <span id="metricArcsGT" class="metric-sub">-- ground truth</span>
+          </div>
+
+          <div class="metric-box">
+            <span class="metric-label">Road Sub-Graph</span>
+            <span id="metricGraphSize" class="metric-value">-- arcs</span>
+            <span id="metricNodesCount" class="metric-sub">-- nodes</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layer Controls & Legend -->
+      <div class="panel-card">
+        <h2 class="card-title">3. Map Visualisation Layers</h2>
+        <div class="layer-control-list">
+          <label class="layer-toggle">
+            <input type="checkbox" id="layerGps" checked />
+            <span class="legend-color legend-blue"></span>
+            Raw Noisy GPS Points
+          </label>
+          <label class="layer-toggle">
+            <input type="checkbox" id="layerReconstructed" checked />
+            <span class="legend-color legend-red"></span>
+            HMM Reconstructed Route (Predicted)
+          </label>
+          <label class="layer-toggle">
+            <input type="checkbox" id="layerReference" checked />
+            <span class="legend-color legend-green"></span>
+            Ground Truth Reference Route
+          </label>
+        </div>
+      </div>
+
+    </aside>
+
+    <!-- Interactive Map Pane -->
+    <main class="map-container">
+      <div id="map"></div>
+      
+      <!-- Floating Map Legend Overlay -->
+      <div class="map-legend-overlay">
+        <div class="legend-item"><span class="legend-dot legend-blue"></span> Raw GPS (Observation)</div>
+        <div class="legend-item"><span class="legend-line legend-red"></span> Reconstructed (HMM + Viterbi)</div>
+        <div class="legend-item"><span class="legend-line legend-green"></span> Ground Truth (Reference)</div>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
